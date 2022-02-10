@@ -14,10 +14,10 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include "1_Tabela de frequencia/ftab.h"
-#include "2_Arvore de prefixos/prefix.h"
-#include "3_Tabela de equivalencia/eqtab.h"
-#include "4_Fila binaria/bqueue.h"
+#include "1_Tabela_de_frequencia/ftab.h"
+#include "2_Arvore_de_prefixos/prefix.h"
+#include "3_Tabela_de_equivalencia/eqtab.h"
+#include "4_Fila_binaria/bqueue.h"
 
 using namespace std;
 // Linha de comando: executável.exe -c/-d arq_in arq_out
@@ -114,12 +114,15 @@ int main(int argc, char *argv[])
 
   if (operacao == "-c")
   {
-    // MONTANDO TABELA DE EQUIVALÊNCIA:
+    // Parte 01 - MONTANDO TABELA DE EQUIVALÊNCIA:
     char *file_in = argv[2];
     ftab tabFrequencia = ftab(file_in);
+
+    // Teste parte 01:
+    // tabFrequencia.sort();
     // tabFrequencia.print();
 
-    // MONTANDO ARVORE DE PREFIXOS:
+    // Parte 02 - MONTANDO ARVORE DE PREFIXOS:
     prefix arvore;
     for (int i{0}; i < 256; i++)
     {
@@ -135,20 +138,23 @@ int main(int argc, char *argv[])
       prefix_node *noNovo = arvore.fusion(noFusao, noFusao->prxox);
     }
 
-    // MONTANDO TABELA DE EQUIVALENCIA:
+    // Parte 03 - MONTANDO TABELA DE EQUIVALENCIA:
     eqtab tabEquivalencia;
     string aux;
     PreOrdem(arvore.take_min_node(), aux, tabEquivalencia);
+
+    // Teste parte 03:
     // for (int i{0}; i < 256; i++)
     // {
     //   string teste = tabEquivalencia.getStr(i);
     //   if (teste != "")
     //   {
-    //     cout << teste << endl;
+    //     cout << (char)i << " - " << teste << endl;
     //   }
     // }
 
-    // APLICANDO FILA BINÁRIA:
+    // Parte 04 - APLICANDO FILA BINÁRIA:
+    // Abrindo o arquivo de saída:
     char *file_out = argv[3];
     FILE *fileFila = fopen(file_out, "wb");
     if (fileFila == NULL)
@@ -157,9 +163,11 @@ int main(int argc, char *argv[])
     }
     else
     {
+      // Criando a fila binária:
       bqueue filaBinaria = bqueue(fileFila);
 
-      mychar esp = 0;
+      mychar esp = 0; // Null.
+
       // Gravando a tabela de frequencia no arquivo:
       for (int i{0}; i < 256; i++)
       {
@@ -172,17 +180,21 @@ int main(int argc, char *argv[])
 
           while (divd > 0)
           {
-            mychar aux = 255;
-            fwrite(&aux, sizeof(char), 1, fileFila);
+            mychar auxChar = 255;
+            fwrite(&auxChar, sizeof(char), 1, fileFila);
             divd--;
           }
-          mychar aux = resto;
-          fwrite(&aux, sizeof(char), 1, fileFila);
+          if (resto > 0)
+          {
+            mychar auxChar2 = resto;
+            fwrite(&auxChar2, sizeof(char), 1, fileFila);
+          }
           fwrite(&esp, sizeof(char), 1, fileFila);
         }
       }
       fwrite(&esp, sizeof(char), 1, fileFila);
 
+      // Gravando o arquivo compactado
       FILE *file = fopen(file_in, "rb");
       string strBin{};
       mychar c;
@@ -193,38 +205,23 @@ int main(int argc, char *argv[])
         {
           strBin += tabEquivalencia.getStr(c);
         }
-        else if (feof(file))
-        {
-          string aux{};
-          aux = tabEquivalencia.getStr(c);
-
-          for (int i{0}; i < (int)aux.length(); i++)
-          {
-            fwrite(&aux[i], sizeof(char), 1, fileFila);
-          }
-        }
       }
 
+      int contResto{0};
+      int restoStrBin = ((int)strBin.length() % 8);
+      for (int i{0}; i < (8 - restoStrBin); i++)
+      {
+        contResto++;
+        strBin += '0';
+      }
+      mychar contRestoC = contResto;
+      fwrite(&contRestoC, sizeof(char), 1, fileFila);
       // cout << strBin << endl;
-      fwrite(&esp, sizeof(char), 1, fileFila);
-      filaBinaria.pushSring(strBin);
+      filaBinaria.pushSring(strBin, true);
 
       fclose(file);
       fclose(fileFila);
     }
-    // FILE *teste = fopen("saida.huff", "r");
-    // mychar z;
-    // while (!feof(teste))
-    // {
-    //   fread(&z, sizeof(char), 1, teste);
-    //   if (!feof(teste))
-    //   {
-    //     cout << (int)z << " ";
-    //   }
-    // }
-    // cout << endl;
-
-    // fclose(teste);
   }
   else if (operacao == "-d")
   {
@@ -236,13 +233,13 @@ int main(int argc, char *argv[])
     bool isZero{false};
     while (true)
     {
-      mychar c;
+      mychar cArvore;
       mychar aux{0};
       myint freq{0};
 
-      fread(&c, sizeof(char), 1, fileEntrada);
+      fread(&cArvore, sizeof(char), 1, fileEntrada);
 
-      if (isZero == true && c == 0)
+      if (isZero == true && cArvore == 0)
       {
         break;
       }
@@ -261,7 +258,7 @@ int main(int argc, char *argv[])
           freq += (int)aux;
         }
       }
-      arvore.add_prefix(c, freq);
+      arvore.add_prefix(cArvore, freq);
     }
     while (arvore.take_min_node()->prxox != nullptr)
     {
@@ -271,9 +268,9 @@ int main(int argc, char *argv[])
 
     // MONTANDO A TABELA DE EQUIVALÊNCIA:
     eqtab tabEquivalencia;
-    string aux;
-    vector<int> caracTab{};
-    PreOrdem(arvore.take_min_node(), aux, tabEquivalencia);
+    string auxStr;
+    vector<int> caracTab{}; // Representação decimal de cada char na Eqtab.
+    PreOrdem(arvore.take_min_node(), auxStr, tabEquivalencia);
 
     for (int i{0}; i < 256; i++)
     {
@@ -284,26 +281,10 @@ int main(int argc, char *argv[])
       }
     }
 
-    // for (int i{0}; i < 256; i++)
-    // {
-    //   string teste = tabEquivalencia.getStr(i);
-    //   if (teste != "")
-    //   {
-    //     cout << (char)i << " : " << teste << endl;
-    //   }
-    // }
+    mychar fim{};
+    fread(&fim, sizeof(char), 1, fileEntrada);
 
-    string fim{};
-    while (true)
-    {
-      mychar c{};
-      fread(&c, sizeof(char), 1, fileEntrada);
-      if (c == 0)
-      {
-        break;
-      }
-      fim += c;
-    }
+    // cout << (int)fim << endl;
 
     // LENDO OS BYTES DO ARQUIVO COMPACTADO:
     string strBinaria{};
@@ -324,73 +305,6 @@ int main(int argc, char *argv[])
     fclose(fileEntrada);
 
     // MONTANDO A FILA BINÁRIA:
-    string fluxo{};
-    string finalizada{};
-    for (int i{0}; i < (int)strBinaria.length(); i++)
-    {
-      fluxo += strBinaria[i];
-      for (int i{0}; i < (int)caracTab.size(); i++)
-      {
-        if (tabEquivalencia.getStr(caracTab[i]) == fluxo)
-        {
-          finalizada += tabEquivalencia.getChar(fluxo);
-          // cout << tabEquivalencia.getChar(fluxo);
-          fluxo = "";
-          break;
-        }
-      }
-    }
-    // cout << endl;
-    // cout << fluxo << endl;
-    // fluxo += "1101";
-
-    int size = (int)fim.size();
-    if ((int)fluxo.size() < size && (int)fluxo.size() != 0)
-    {
-      fluxo = fim;
-    }
-    else
-    {
-      for (int i = (int)fluxo.length() - 1; i >= 0; i--)
-      {
-        size--;
-        if (size == 0)
-        {
-          string aux{};
-          for (int j{0}; j < i; j++)
-          {
-            aux += fluxo[j];
-          }
-          aux += fim;
-          fluxo = aux;
-          break;
-        }
-      }
-    }
-
-    // cout << endl;
-    // cout << finalizada << endl;
-    string aux2{};
-    for (int i{0}; i < (int)fluxo.length(); i++)
-    {
-      aux2 += fluxo[i];
-      for (int i{0}; i < (int)caracTab.size(); i++)
-      {
-        if (tabEquivalencia.getStr(caracTab[i]) == aux2)
-        {
-          finalizada += tabEquivalencia.getChar(aux2);
-          // cout << tabEquivalencia.getChar(aux2);
-          aux2 = "";
-          break;
-        }
-      }
-    }
-    // cout << endl;
-    // cout << finalizada << endl;
-    // cout << fluxo << endl;
-    // cout << fim;
-
-    // CONSTRUINDO O ARQUIVO DE SAIDA:
     char *file_out = argv[3];
     FILE *fileFila = fopen(file_out, "wb");
     if (fileFila == NULL)
@@ -399,13 +313,26 @@ int main(int argc, char *argv[])
     }
     else
     {
-      for (int i{0}; i < (int)finalizada.length(); i++)
+      string fluxo{};
+      for (int i{0}; i < (int)strBinaria.length() - (int)fim; i++)
       {
-        mychar temp = finalizada[i];
-        fwrite(&temp, sizeof(char), 1, fileFila);
+        fluxo += strBinaria[i];
+        for (int i{0}; i < (int)caracTab.size(); i++)
+        {
+          if (tabEquivalencia.getStr(caracTab[i]) == fluxo)
+          {
+            mychar temps = tabEquivalencia.getChar(fluxo);
+            fwrite(&temps, sizeof(char), 1, fileFila);
+            // cout << tabEquivalencia.getChar(fluxo);
+            fluxo = "";
+            break;
+          }
+        }
       }
     }
     fclose(fileFila);
+
+    // CONSTRUINDO O ARQUIVO DE SAIDA:
   }
   else
   {
