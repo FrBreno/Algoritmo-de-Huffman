@@ -1,16 +1,3 @@
-/*
-  ANOTAÇÕES
-  01. Tratar casos em que a árvore terá apenas um nó (nó raiz) --> Fazer um if na função que lerá os caminhos da árvore
-  02. Verifcar se realmente compactou o negocio
-  03. Verificar se descompactou
-  04. Criar um filtro que aceita apenas as estradas: -c/-d arq_entrada arq_saida
-    --> Caso contrário, exibir uma mensagem de erro explicando a entrada para compilação
-  05. Converter argv[] para str sem usar sstream.
-  06. Mudar o escirta de putc para fwrite na bqueue.cpp
-  07. Fazer tratamento de falha ao abrir o arquivo de entrada em ftab.cpp
-  08. Fazer lógica de adiciona zero a direita na última parte da string na comparação com a tabela de equivalência --> Descompactação
-*/
-
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -140,9 +127,16 @@ int main(int argc, char *argv[])
 
     // Parte 03 - MONTANDO TABELA DE EQUIVALENCIA:
     eqtab tabEquivalencia;
-    string aux;
-    PreOrdem(arvore.take_min_node(), aux, tabEquivalencia);
-
+    prefix_node *raiz = arvore.take_min_node();
+    if (raiz->left == nullptr && raiz->right == nullptr)
+    {
+      tabEquivalencia.add("1", raiz->c);
+    }
+    else
+    {
+      string aux;
+      PreOrdem(arvore.take_min_node(), aux, tabEquivalencia);
+    }
     // Teste parte 03:
     // for (int i{0}; i < 256; i++)
     // {
@@ -268,10 +262,18 @@ int main(int argc, char *argv[])
 
     // MONTANDO A TABELA DE EQUIVALÊNCIA:
     eqtab tabEquivalencia;
-    string auxStr;
-    vector<int> caracTab{}; // Representação decimal de cada char na Eqtab.
-    PreOrdem(arvore.take_min_node(), auxStr, tabEquivalencia);
+    prefix_node *raiz = arvore.take_min_node();
+    if (raiz->left == nullptr && raiz->right == nullptr)
+    {
+      tabEquivalencia.add("1", raiz->c);
+    }
+    else
+    {
+      string auxStr;
+      PreOrdem(arvore.take_min_node(), auxStr, tabEquivalencia);
+    }
 
+    vector<int> caracTab{}; // Representação decimal de cada char na Eqtab.
     for (int i{0}; i < 256; i++)
     {
       string teste = tabEquivalencia.getStr(i);
