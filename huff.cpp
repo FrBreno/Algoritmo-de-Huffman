@@ -275,12 +275,14 @@ int main(int argc, char *argv[])
     }
 
     vector<int> caracTab{}; // Representação decimal de cada char na Eqtab.
+    vector<string> strTab{};
     for (int i{0}; i < 256; i++)
     {
       string teste = tabEquivalencia.getStr(i);
       if (teste != "")
       {
         caracTab.push_back(i);
+        strTab.push_back(teste);
       }
     }
 
@@ -317,14 +319,16 @@ int main(int argc, char *argv[])
     else
     {
       string fluxo{};
-      for (int i{0}; i < (int)strBinaria.length() - (int)fim; i++)
+      int strBinTam = (int)strBinaria.length();
+      int caracTabSize = caracTab.size();
+      for (int i{0}; i < strBinTam - (int)fim; i++)
       {
         fluxo += strBinaria[i];
-        for (int i{0}; i < (int)caracTab.size(); i++)
+        for (int i{0}; i < caracTabSize; i++)
         {
-          if (tabEquivalencia.getStr(caracTab[i]) == fluxo)
+          if (strTab[i] == fluxo)
           {
-            mychar temps = tabEquivalencia.getChar(fluxo);
+            mychar temps = caracTab[i];
             fwrite(&temps, sizeof(char), 1, fileFila);
             // cout << tabEquivalencia.getChar(fluxo);
             fluxo = "";

@@ -24,7 +24,7 @@ void bqueue::pushSring(string s, bool resto)
       fwrite(&c, sizeof(char), 1, fout);
     }
   }
-  if (resto && fila.size() < 8) // Pega o que sobrou da fila e joga no arquivo (isso quando não tiver mais strings para entrar).
+  if (resto && fila.size() < 8) // Explicação no .h.
   {
     unsigned char c{0};
     for (int j{0}; fila.size() != 0; j++)
