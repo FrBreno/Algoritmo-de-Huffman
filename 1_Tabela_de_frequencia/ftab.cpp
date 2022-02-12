@@ -8,15 +8,12 @@ ftab::ftab(const char *filename)
         tab[i].second = 0;
     }
 
-    FILE *file = fopen(filename, "rb"); // Adc 'rb' de 'r'
+    FILE *file = fopen(filename, "rb");
     mychar c;
     while (!feof(file))
     {
         fread(&c, sizeof(char), 1, file);
-        if (!feof(file)) // Adc pós
-        {
-            tab[c].second += 1;
-        }
+        tab[c].second += 1;
     }
     fclose(file);
 
