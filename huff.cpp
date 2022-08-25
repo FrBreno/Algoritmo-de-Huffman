@@ -8,7 +8,6 @@
 #include "4_Fila_binaria/bqueue.h"
 
 using namespace std;
-// Linha de comando: executável.exe -c/-d arq_in arq_out
 
 void decimalParaStr(int x, bool final, string &str)
 {
@@ -106,10 +105,6 @@ int main(int argc, char *argv[])
     char *file_in = argv[2];
     ftab tabFrequencia = ftab(file_in);
 
-    // Teste parte 01:
-    // tabFrequencia.sort();
-    // tabFrequencia.print();
-
     // Parte 02 - MONTANDO ARVORE DE PREFIXOS:
     prefix arvore;
     for (int i{0}; i < 256; i++)
@@ -138,15 +133,6 @@ int main(int argc, char *argv[])
       string aux;
       PreOrdem(arvore.take_min_node(), aux, tabEquivalencia);
     }
-    // Teste parte 03:
-    // for (int i{0}; i < 256; i++)
-    // {
-    //   string teste = tabEquivalencia.getStr(i);
-    //   if (teste != "")
-    //   {
-    //     cout << (char)i << " - " << teste << endl;
-    //   }
-    // }
 
     // Parte 04 - APLICANDO FILA BINÁRIA:
     // Abrindo o arquivo de saída:
@@ -289,8 +275,6 @@ int main(int argc, char *argv[])
     mychar fim{};
     fread(&fim, sizeof(char), 1, fileEntrada);
 
-    // cout << (int)fim << endl;
-
     // LENDO OS BYTES DO ARQUIVO COMPACTADO:
     string strBinaria{};
     mychar c;
@@ -330,7 +314,6 @@ int main(int argc, char *argv[])
           {
             mychar temps = caracTab[i];
             fwrite(&temps, sizeof(char), 1, fileFila);
-            // cout << tabEquivalencia.getChar(fluxo);
             fluxo = "";
             break;
           }
